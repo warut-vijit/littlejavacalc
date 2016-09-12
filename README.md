@@ -30,5 +30,5 @@ Functions:
   	graph: <function>
     Graphs the function <function> of x
     
-  reset
+    reset
     Resets the values of every variable to default of 0
