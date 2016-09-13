@@ -118,6 +118,9 @@ public class Display extends JFrame {
 					temp.remove(j);
 				}
 			}
+			if(temp.get(j) instanceof Double && temp.get(j+1) instanceof Double){
+				temp.add(j+1, '*');
+			}
 		}
 			//Parentheses are eliminated. Proceed with order of operations
 		return temp;
