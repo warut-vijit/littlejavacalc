@@ -1,6 +1,5 @@
 package main;
 
-import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -11,8 +10,6 @@ import java.util.TreeMap;
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -111,18 +108,26 @@ public class Display extends JFrame {
 			}
 			i++;
 		}
-		for(int j=0;j<temp.size()-1;j++){
-			if(temp.get(j) instanceof Character && (char)temp.get(j)=='-'){
-				if(j==0 || !(temp.get(j-1) instanceof Double)){
-					temp.set(j+1, (double)temp.get(j+1) * -1);
-					temp.remove(j);
-				}
-			}
-			if(temp.get(j) instanceof Double && temp.get(j+1) instanceof Double){
-				temp.add(j+1, '*');
-			}
+		for(int j=0;j<temp.size();j++){
+			try{
+				if(temp.get(j) instanceof Character && (char)temp.get(j)=='-'){
+					if(j==0 || !(temp.get(j-1) instanceof Double)){
+						temp.set(j+1, (double)temp.get(j+1) * -1);
+						temp.remove(j);
+					}
+				}//Better use of negative signs
+				if(temp.get(j) instanceof Double && temp.get(j+1) instanceof Double){
+					temp.add(j+1, '*');
+				}//Implicit multiplication
+				if(temp.get(j) instanceof Character && temp.get(j+1) instanceof Character && temp.get(j+2) instanceof Character){
+					String a = ""+(char)temp.get(j) + (char)temp.get(j+1) + (char)temp.get(j+2);
+					if(a.equals("sin")){temp.set(j,"sin");temp.remove(j+2);temp.remove(j+1);}
+					else if(a.equals("cos")){temp.set(j,"cos");temp.remove(j+2);temp.remove(j+1);}
+					else if(a.equals("tan")){temp.set(j, "tan");temp.remove(j+2);temp.remove(j+1);}
+					else if(a.equals("log")){temp.set(j, "log");temp.remove(j+2);temp.remove(j+1);}
+				}//Certain functions
+			}catch(IndexOutOfBoundsException ie){}
 		}
-			//Parentheses are eliminated. Proceed with order of operations
 		return temp;
 	}
 	public double operate(ArrayList<Object> elements){
@@ -130,11 +135,21 @@ public class Display extends JFrame {
 		if(elements.size()==1){
 			try{return (double) elements.get(0);}catch(ClassCastException cce){return variables.get(elements.get(0));}
 		}//Only one number left (result)
-		char highest_op = elements.contains('^') ? '^' : ((elements.contains('*')||elements.contains('/')||elements.contains('%')) ? '*' : '+');
+		char highest_op = elements.contains('^') ? '^' : (elements.contains("sin")||elements.contains("cos")||elements.contains("tan")||elements.contains("log")) ? 't' : ((elements.contains('*')||elements.contains('/')||elements.contains('%')) ? '*' : '+');
 		int i=0;
 		while(i<elements.size()){
 			if(elements.get(i) instanceof Double || elements.get(i) instanceof Integer){
 				temp.add(elements.get(i));
+			}
+			else if(highest_op == 't' && elements.get(i) instanceof String){
+				try{
+					double a = (elements.get(i+1) instanceof Double) ? (double)elements.get(i+1) : variables.get(elements.get(i+1));
+					if(elements.get(i).equals("sin")){temp.add(Math.sin(a));}
+					else if(elements.get(i).equals("cos")){temp.add(Math.cos(a));}
+					else if(elements.get(i).equals("tan")){temp.add(Math.tan(a));}
+					else if(elements.get(i).equals("log")){temp.add(Math.log(a));}
+					i++;
+				}catch(IndexOutOfBoundsException ie){System.out.println("Unknown Syntax Error.");return 0;}
 			}
 			else if((char)elements.get(i)==highest_op || ( ((char)elements.get(i)=='/'||(char)elements.get(i)=='%') && highest_op=='*') || ((char)elements.get(i)=='-' && highest_op=='+')){
 				if((char)elements.get(i)=='^'){
