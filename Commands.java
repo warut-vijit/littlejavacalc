@@ -5,8 +5,10 @@ import java.util.Map;
 
 public class Commands {
 	Display module;
+	boolean preserve;//Overwrite previous functions?
 	public Commands(Display d){
 		module = d;
+		preserve = false;
 	}
 	public String check(String s){
 		String command = "";
@@ -69,7 +71,7 @@ public class Commands {
 				char[] chars = argslist[0].toCharArray();
 				ArrayList<Object> elements = new ArrayList<Object>();
 				for(int i=0;i<chars.length;i++){elements.add(chars[i]);}
-				module.graph.graph_points.clear();
+				if(!preserve){module.graph.graph_points.clear();}
 				while(iterator<module.graph.graph_width){
 					module.variables.put('x', iterator);
 					ArrayList<Object> parsed = module.parse(elements);
@@ -79,6 +81,18 @@ public class Commands {
 				module.variables.put('x',temp);
 				module.graph.repaint();
 				return "Done";
+			case "clearGraph":
+				if(argslist.length!=0){return "Syntax Error: No arguments expected";}
+				module.graph.graph_points.clear();
+				module.graph.repaint();
+				return "Done";
+			case "setPreserve":
+				if(argslist.length!=1){return "Syntax Error: One argument expected";}
+				try{
+					if(Integer.parseInt(argslist[0])==1) preserve = true;
+					else if(Integer.parseInt(argslist[0])==0) preserve = true;
+					return "Done";
+				}catch(NumberFormatException nfe){return "Syntax Error: Number expected";}
 			default:
 				return null;
 		}
