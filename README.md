@@ -32,3 +32,9 @@ Functions:
     
     reset
     Resets the values of every variable to default of 0
+    
+    clearGraph
+    Clears all points on the graph
+    
+    setPreserve: <1|0>
+    Sets preference for drawing over or keeping previous function
